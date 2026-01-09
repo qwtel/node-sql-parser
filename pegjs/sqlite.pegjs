@@ -1114,7 +1114,7 @@ check_constraint_definition
 reference_definition
   = kc:KW_REFERENCES __
   t:table_name __
-  de:cte_column_definition __
+  de:cte_column_definition? __
   m:('MATCH FULL'i / 'MATCH PARTIAL'i / 'MATCH SIMPLE'i)? __
   od:on_reference? __
   ou:on_reference? {

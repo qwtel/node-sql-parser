@@ -125,6 +125,7 @@ function buildConfig(parserName, target, entry, plugins) {
         watch,
         target,
         mode: isProd ? 'production' : 'development',
+        optimization: { minimize: false },
         node: { __dirname: false },
         module: moduleCfg,
         resolve: { extensions: ['.js', '.pegjs'] },
@@ -139,15 +140,12 @@ if (isProd) {
 
     for (const target of ['web', 'node']) {
         config.push(
-            // full bundle
-            buildConfig(null, target, {
-                ['index' + (target === 'web' ? '.umd' : '')]: ['./index.js'],
-            }),
             // Add one light bundle per language
             ...fs.readdirSync(path.join(__dirname, 'pegjs'))
                 .map(x => /^(.+)\.pegjs$/.exec(x))
                 .filter(x => !!x)
                 .map(x => x[1])
+                .filter(parser => parser === 'sqlite')
                 .map(parser =>
                     buildConfig(parser, target, {
                         [parser + (target === 'web' ? '.umd' : '')]: ['./index.js'],
