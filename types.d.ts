@@ -373,6 +373,12 @@ export type ColumnConstraint = {
   nullable: LiteralNotNull | LiteralNull;
 };
 
+export type CreateGenerated = {
+  value: string;
+  expr: any;
+  storage_type?: "stored" | "virtual";
+};
+
 export type ColumnDefinitionOptList = {
   nullable?: ColumnConstraint["nullable"];
   default_val?: ColumnConstraint["default_val"];
@@ -392,11 +398,7 @@ export type ColumnDefinitionOptList = {
   character_set?: { type: "CHARACTER SET"; value: string; symbol?: "=" };
   constraint?: ConstraintName;
   check?: CreateConstraintCheck;
-  generated?: {
-    value: string;
-    expr: any;
-    storage_type?: "stored" | "virtual";
-  };
+  generated?: CreateGenerated;
   generated_by_default?: string;
   using?: any;
 };
