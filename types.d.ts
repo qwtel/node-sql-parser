@@ -376,15 +376,29 @@ export type ColumnConstraint = {
 export type ColumnDefinitionOptList = {
   nullable?: ColumnConstraint["nullable"];
   default_val?: ColumnConstraint["default_val"];
-  auto_increment?: "auto_increment";
+  auto_increment?: "auto_increment" | "autoincrement" | {
+    keyword: string;
+    seed?: any;
+    increment?: any;
+    parentheses?: boolean;
+  };
   unique?: "unique" | "unique key";
-  primary?: "key" | "primary key";
+  primary_key?: "key" | "primary key";
   comment?: KeywordComment;
   collate?: { collate: CollateExpr };
   column_format?: { column_format: any };
   storage?: { storage: any };
   reference_definition?: { reference_definition: any };
   character_set?: { type: "CHARACTER SET"; value: string; symbol?: "=" };
+  constraint?: ConstraintName;
+  check?: CreateConstraintCheck;
+  generated?: {
+    value: string;
+    expr: any;
+    storage_type?: "stored" | "virtual";
+  };
+  generated_by_default?: string;
+  using?: any;
 };
 
 export type CreateColumnDefinition = {

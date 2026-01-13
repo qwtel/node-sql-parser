@@ -114,23 +114,43 @@ function columnOption(definition) {
     generated_by_default: generateByDefault,
   } = definition
   const nullSQL = [toUpper(nullable && nullable.action), toUpper(nullable && nullable.value)].filter(hasVal).join(' ')
-  if (!generated) columnOpt.push(nullSQL)
-  if (defaultOpt) {
-    const { type, value } = defaultOpt
-    columnOpt.push(type.toUpperCase(), exprToSQL(value))
-  }
   const { database } = getParserOpt()
-  if (constraint) columnOpt.push(toUpper(constraint.keyword), literalToSQL(constraint.constraint))
-  columnOpt.push(constraintDefinitionToSQL(check))
-  columnOpt.push(generatedExpressionToSQL(generated))
-  if (generated) columnOpt.push(nullSQL)
+  const isSQLite = database && database.toLowerCase() === 'sqlite'
+
+  if (isSQLite) {
+    // SQLite canonical constraint order
+    if (constraint) columnOpt.push(toUpper(constraint.keyword), literalToSQL(constraint.constraint))
+    columnOpt.push(toUpper(primaryKey), autoIncrementToSQL(autoIncrement))
+    if (!generated) columnOpt.push(nullSQL)
+    columnOpt.push(toUpper(uniqueKey))
+    columnOpt.push(constraintDefinitionToSQL(check))
+    if (defaultOpt) {
+      const { type, value } = defaultOpt
+      columnOpt.push(type.toUpperCase(), exprToSQL(value))
+    }
+    columnOpt.push(exprToSQL(collate))
+    columnOpt.push(generatedExpressionToSQL(generated))
+    if (generated) columnOpt.push(nullSQL)
+    columnOpt.push(...columnReferenceDefinitionToSQL(referenceDefinition))
+  } else {
+    if (!generated) columnOpt.push(nullSQL)
+    if (defaultOpt) {
+      const { type, value } = defaultOpt
+      columnOpt.push(type.toUpperCase(), exprToSQL(value))
+    }
+    if (constraint) columnOpt.push(toUpper(constraint.keyword), literalToSQL(constraint.constraint))
+    columnOpt.push(constraintDefinitionToSQL(check))
+    columnOpt.push(generatedExpressionToSQL(generated))
+    if (generated) columnOpt.push(nullSQL)
   columnOpt.push(autoIncrementToSQL(autoIncrement), toUpper(primaryKey), toUpper(uniqueKey), literalToSQL(generateByDefault), commentToSQL(comment))
-  columnOpt.push(...commonTypeValue(characterSet))
-  if (database.toLowerCase() !== 'sqlite') columnOpt.push(exprToSQL(collate))
-  columnOpt.push(...commonTypeValue(columnFormat))
-  columnOpt.push(...commonTypeValue(storage))
-  columnOpt.push(...columnReferenceDefinitionToSQL(referenceDefinition))
-  columnOpt.push(commonOptionConnector('USING', exprToSQL, using))
+    columnOpt.push(...commonTypeValue(characterSet))
+    columnOpt.push(exprToSQL(collate))
+    columnOpt.push(...commonTypeValue(columnFormat))
+    columnOpt.push(...commonTypeValue(storage))
+    columnOpt.push(...columnReferenceDefinitionToSQL(referenceDefinition))
+    columnOpt.push(commonOptionConnector('USING', exprToSQL, using))
+  }
+
   return columnOpt.filter(hasVal).join(' ')
 }
 
