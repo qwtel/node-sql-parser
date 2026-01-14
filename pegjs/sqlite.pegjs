@@ -3158,12 +3158,22 @@ data_type
   / enum_type
   / boolean_type
   / blob_type
+  / any_type
+  / custom_type
 
 blob_type
   = b:('blob'i / 'tinyblob'i / 'mediumblob'i / 'longblob'i) { return { dataType: b.toUpperCase() }; }
 
 boolean_type
   = 'boolean'i { return { dataType: 'BOOLEAN' }; }
+
+any_type
+  = 'any'i !ident_start { return { dataType: 'ANY' }; }
+
+custom_type
+  = t:ident_without_kw_type {
+    return { dataType: t.value };
+  }
 
 character_string_type
   = t:(KW_CHAR / KW_VARCHAR) __ LPAREN __ l:[0-9]+ __ RPAREN {
