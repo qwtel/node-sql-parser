@@ -3171,7 +3171,10 @@ any_type
   = 'any'i !ident_start { return { dataType: 'ANY' }; }
 
 custom_type
-  = t:ident_without_kw_type {
+  = t:ident_without_kw_type __ LPAREN __ content:[^)]* __ RPAREN {
+    return { dataType: t.value + '(' + content.join('') + ')' };
+  }
+  / t:ident_without_kw_type {
     return { dataType: t.value };
   }
 
