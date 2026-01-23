@@ -2346,10 +2346,10 @@ alias_ident
     }
 
 quoted_ident_type
-  = double_quoted_ident / single_quoted_ident / backticks_quoted_ident
+  = double_quoted_ident / single_quoted_ident / backticks_quoted_ident / square_bracket_quoted_ident
 
 quoted_ident
-  = v:(double_quoted_ident / single_quoted_ident / backticks_quoted_ident) {
+  = v:(double_quoted_ident / single_quoted_ident / backticks_quoted_ident / square_bracket_quoted_ident) {
     return v.value
   }
 
@@ -2373,6 +2373,14 @@ backticks_quoted_ident
   = "`" chars:[^`]+ "`" {
     return {
       type: 'backticks_quote_string',
+      value: chars.join('')
+    }
+  }
+
+square_bracket_quoted_ident
+  = LBRAKE chars:[^\]]+ RBRAKE {
+    return {
+      type: 'square_bracket_string',
       value: chars.join('')
     }
   }
