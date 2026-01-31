@@ -111,6 +111,14 @@ function escape(str) {
   // return res.join('')
 }
 
+function escapeDoubleQuotedIdent(str) {
+  return String(str).replace(/"/g, '""')
+}
+
+function escapeSingleQuotedString(str) {
+  return String(str).replace(/'/g, "''")
+}
+
 function getParserOpt() {
   return parserOpt
 }
@@ -140,7 +148,7 @@ function columnIdentifierToSql(ident) {
     case 'noql':
     case 'trino':
     case 'sqlite':
-      return `"${ident}"`
+      return `"${escapeDoubleQuotedIdent(ident)}"`
     case 'transactsql':
       return `[${ident}]`
     case 'mysql':
@@ -168,7 +176,7 @@ function identifierToSql(ident, isDual, surround) {
     case 'trino':
     case 'noql':
     case 'sqlite':
-      return `"${ident}"`
+      return `"${escapeDoubleQuotedIdent(ident)}"`
     case 'transactsql':
       return `[${ident}]`
     case 'bigquery':
@@ -198,7 +206,7 @@ function literalToSQL(literal) {
       str = `\`${escape(value)}\``
       break
     case 'string':
-      str = `'${escape(value)}'`
+      str = `'${escapeSingleQuotedString(value)}'`
       break
     case 'regex_string':
       str = `r"${escape(value)}"`
@@ -216,10 +224,10 @@ function literalToSQL(literal) {
       str = `b'${escape(value)}'`
       break
     case 'double_quote_string':
-      str = `"${escape(value)}"`
+      str = `"${escapeDoubleQuotedIdent(value)}"`
       break
     case 'single_quote_string':
-      str = `'${value}'`
+      str = `'${escapeSingleQuotedString(value)}'`
       break
     case 'boolean':
     case 'bool':
