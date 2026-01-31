@@ -2354,12 +2354,16 @@ quoted_ident
   }
 
 double_quoted_ident
-  = '"' chars:[^"]+ '"' {
+  = '"' chars:double_quote_ident_char* '"' {
     return {
       type: 'double_quote_string',
       value: chars.join('')
     }
   }
+
+double_quote_ident_char
+  = [^"] { return text(); }
+  / '""' { return '"'; }
 
 single_quoted_ident
   = "'" chars:[^']+ "'" {
