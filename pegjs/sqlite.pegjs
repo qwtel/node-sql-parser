@@ -590,7 +590,7 @@ column_definition_opt
   }
 
 column_definition_opt_list
-  = head:column_definition_opt __ tail:(__ column_definition_opt)* {
+  = head:column_definition_opt __? tail:(__ column_definition_opt)* {
     let opt = head
     for (let i = 0; i < tail.length; i++) {
       opt = { ...opt, ...tail[i][1] }
@@ -600,7 +600,7 @@ column_definition_opt_list
 
 create_column_definition
   = c:column_without_kw __
-    d:data_type? __
+    d:data_type? __?
     cdo:column_definition_opt_list? {
       columnList.add(`create::${c.table}::${c.value || c}`)
       return {
@@ -653,11 +653,11 @@ generated_always
   }
 
 generated
-  = gn:(generated_always? __ 'AS'i) __ LPAREN __ expr:(literal / expr) __ RPAREN __ st:('STORED'i / 'VIRTUAL'i)* {
+  = gn:(generated_always __)? 'AS'i __ LPAREN __ expr:(literal / expr) __ RPAREN __ st:('STORED'i / 'VIRTUAL'i)* {
       return {
         type: 'generated',
         expr: expr,
-        value: gn.filter(s => typeof s === 'string').join(' ').toLowerCase(),
+        value: gn ? (gn[0] + ' as').toLowerCase() : 'as',
         storage_type: st && st[0] && st[0].toLowerCase()
       }
     }
@@ -3186,7 +3186,7 @@ custom_type
   = t:ident_without_kw_type __ LPAREN __ content:[^)]* __ RPAREN {
     return { dataType: t.value + '(' + content.join('') + ')' };
   }
-  / t:ident_without_kw_type {
+  / t:ident_without_kw_type !{ return reservedMap[t.value && t.value.toUpperCase()] === true; } {
     return { dataType: t.value };
   }
 
