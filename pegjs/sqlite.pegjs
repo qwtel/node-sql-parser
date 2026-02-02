@@ -653,7 +653,7 @@ generated_always
   }
 
 generated
-  = gn:(generated_always __)? 'AS'i __ LPAREN __ expr:(literal / expr) __ RPAREN __ st:('STORED'i / 'VIRTUAL'i)* {
+  = gn:(generated_always __)? 'AS'i __ LPAREN __ expr:expr __ RPAREN __ st:('STORED'i / 'VIRTUAL'i)* {
       return {
         type: 'generated',
         expr: expr,
