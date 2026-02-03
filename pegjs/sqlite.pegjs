@@ -12,6 +12,9 @@
 
     'CALL': true,
     'CASE': true,
+    'CHECK': true,
+    'COLLATE': true,
+    'CONSTRAINT': true,
     'CREATE': true,
     'CONTAINS': true,
     'COUNT': true,
@@ -20,6 +23,7 @@
     'CURRENT_TIMESTAMP': true,
     'CURRENT_USER': true,
 
+    'DEFAULT': true,
     'DELETE': true,
     'DESC': true,
     'DISTINCT': true,
@@ -63,7 +67,9 @@
     'ORDER': true,
     'OUTER': true,
 
+    'PRIMARY': true,
     'RECURSIVE': true,
+    'REFERENCES': true,
     'RENAME': true,
     'READ': true, // for lock table
     'RIGHT': true,
@@ -81,6 +87,7 @@
     // 'TYPE': true,   // reserved (MySQL)
 
     'UNION': true,
+    'UNIQUE': true,
     'UPDATE': true,
     'USING': true,
 
