@@ -115,10 +115,6 @@ function escapeDoubleQuotedIdent(str) {
   return String(str).replace(/"/g, '""')
 }
 
-function escapeSingleQuotedString(str) {
-  return String(str).replace(/'/g, "''")
-}
-
 function getParserOpt() {
   return parserOpt
 }
@@ -206,7 +202,7 @@ function literalToSQL(literal) {
       str = `\`${escape(value)}\``
       break
     case 'string':
-      str = `'${escapeSingleQuotedString(value)}'`
+      str = `'${escape(value)}'`
       break
     case 'regex_string':
       str = `r"${escape(value)}"`
@@ -224,10 +220,10 @@ function literalToSQL(literal) {
       str = `b'${escape(value)}'`
       break
     case 'double_quote_string':
-      str = `"${escapeDoubleQuotedIdent(value)}"`
+      str = `"${escape(value)}"`
       break
     case 'single_quote_string':
-      str = `'${escapeSingleQuotedString(value)}'`
+      str = `'${value}'`
       break
     case 'boolean':
     case 'bool':
