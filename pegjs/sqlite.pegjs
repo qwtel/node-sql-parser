@@ -103,6 +103,11 @@
     'LOCAL': true,
     'PERSIST': true,
     'PERSIST_ONLY': true,
+
+    // SQLite column constraint keywords (not DML, but must not be absorbed into type names)
+    'AUTOINCREMENT': true,
+    'VIRTUAL': true,
+    'STORED': true,
   };
 
   function getLocationObject() {
@@ -660,12 +665,12 @@ generated_always
   }
 
 generated
-  = gn:(generated_always __)? 'AS'i __ LPAREN __ expr:expr __ RPAREN __ st:('STORED'i / 'VIRTUAL'i)* {
+  = gn:(generated_always __)? 'AS'i __ LPAREN __ expr:expr __ RPAREN __ st:('STORED'i / 'VIRTUAL'i)? {
       return {
         type: 'generated',
         expr: expr,
         value: gn ? (gn[0] + ' as').toLowerCase() : 'as',
-        storage_type: st && st[0] && st[0].toLowerCase()
+        storage_type: st && st.toLowerCase()
       }
     }
 
@@ -1089,14 +1094,14 @@ create_constraint_check
 
 create_constraint_foreign
   = kc:constraint_name? __
-  p:('FOREIGN KEY'i) __
+  'FOREIGN'i __ 'KEY'i __
   i:column? __
   de:cte_column_definition __
   id:reference_definition? {
     return {
         constraint: kc && kc.constraint,
         definition: de,
-        constraint_type: p,
+        constraint_type: 'FOREIGN KEY',
         keyword: kc && kc.keyword,
         index: i,
         resource: 'constraint',
@@ -2547,28 +2552,6 @@ cast_expr
       target: [t]
     };
   }
-  / c:KW_CAST __ LPAREN __ e:expr __ KW_AS __ KW_DECIMAL __ LPAREN __ precision:int __ RPAREN __ RPAREN {
-    return {
-      type: 'cast',
-      keyword: c.toLowerCase(),
-      expr: e,
-      symbol: 'as',
-      target: [{
-        dataType: 'DECIMAL(' + precision + ')'
-      }]
-    };
-  }
-  / c:KW_CAST __ LPAREN __ e:expr __ KW_AS __ KW_DECIMAL __ LPAREN __ precision:int __ COMMA __ scale:int __ RPAREN __ RPAREN {
-      return {
-        type: 'cast',
-        keyword: c.toLowerCase(),
-        expr: e,
-        symbol: 'as',
-        target: [{
-          dataType: 'DECIMAL(' + precision + ', ' + scale + ')'
-        }]
-      };
-    }
   / c:KW_CAST __ LPAREN __ e:expr __ KW_AS __ s:signedness __ t:KW_INTEGER? __ RPAREN { /* MySQL cast to un-/signed integer */
     return {
       type: 'cast',
@@ -2863,30 +2846,11 @@ KW_END      = "END"i        !ident_start
 
 KW_CAST     = "CAST"i       !ident_start { return 'CAST' }
 
-KW_BIT      = "BIT"i      !ident_start { return 'BIT'; }
-KW_CHAR     = "CHAR"i     !ident_start { return 'CHAR'; }
-KW_VARCHAR  = "VARCHAR"i  !ident_start { return 'VARCHAR';}
-KW_NUMERIC  = "NUMERIC"i  !ident_start { return 'NUMERIC'; }
-KW_DECIMAL  = "DECIMAL"i  !ident_start { return 'DECIMAL'; }
 KW_SIGNED   = "SIGNED"i   !ident_start { return 'SIGNED'; }
 KW_UNSIGNED = "UNSIGNED"i !ident_start { return 'UNSIGNED'; }
-KW_INT      = "INT"i      !ident_start { return 'INT'; }
-KW_ZEROFILL = "ZEROFILL"i !ident_start { return 'ZEROFILL'; }
 KW_INTEGER  = "INTEGER"i  !ident_start { return 'INTEGER'; }
-KW_JSON     = "JSON"i     !ident_start { return 'JSON'; }
-KW_SMALLINT = "SMALLINT"i !ident_start { return 'SMALLINT'; }
-KW_TINYINT  = "TINYINT"i  !ident_start { return 'TINYINT'; }
-KW_TINYTEXT = "TINYTEXT"i !ident_start { return 'TINYTEXT'; }
-KW_TEXT     = "TEXT"i     !ident_start { return 'TEXT'; }
-KW_MEDIUMTEXT = "MEDIUMTEXT"i  !ident_start { return 'MEDIUMTEXT'; }
-KW_LONGTEXT  = "LONGTEXT"i  !ident_start { return 'LONGTEXT'; }
-KW_BIGINT   = "BIGINT"i   !ident_start { return 'BIGINT'; }
-KW_ENUM     = "ENUM"i   !ident_start { return 'ENUM'; }
-KW_FLOAT   = "FLOAT"i   !ident_start { return 'FLOAT'; }
-KW_DOUBLE   = "DOUBLE"i   !ident_start { return 'DOUBLE'; }
-KW_REAL     = "REAL"i   !ident_start { return 'REAL'; }
 KW_DATE     = "DATE"i     !ident_start { return 'DATE'; }
-KW_DATETIME     = "DATETIME"i     !ident_start { return 'DATETIME'; }
+KW_DATETIME = "DATETIME"i !ident_start { return 'DATETIME'; }
 KW_TIME     = "TIME"i     !ident_start { return 'TIME'; }
 KW_TIMESTAMP= "TIMESTAMP"i!ident_start { return 'TIMESTAMP'; }
 KW_TRUNCATE = "TRUNCATE"i !ident_start { return 'TRUNCATE'; }
