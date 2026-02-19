@@ -3169,69 +3169,14 @@ mem_chain
   }
 
 data_type
-  = character_string_type
-  / numeric_type
-  / datetime_type
-  / json_type
-  / text_type
-  / enum_type
-  / boolean_type
-  / blob_type
-  / any_type
-  / custom_type
-
-blob_type
-  = b:('blob'i / 'tinyblob'i / 'mediumblob'i / 'longblob'i) { return { dataType: b.toUpperCase() }; }
-
-boolean_type
-  = 'boolean'i { return { dataType: 'BOOLEAN' }; }
-
-any_type
-  = 'any'i !ident_start { return { dataType: 'ANY' }; }
-
-custom_type
-  = t:ident_without_kw_type __ LPAREN __ content:[^)]* __ RPAREN {
-    return { dataType: t.value + '(' + content.join('') + ')' };
-  }
-  / t:ident_without_kw_type !{ return reservedMap[t.value && t.value.toUpperCase()] === true; } {
-    return { dataType: t.value };
+  = first:data_type_word rest:(__ w:data_type_word { return w; })* paren:(__ LPAREN c:[^)]* RPAREN { return c.join(''); })? tail:(__ w:data_type_word { return w; })* {
+    const wordStr = [first, ...rest].join(' ');
+    const parenStr = paren != null ? '(' + paren + ')' : '';
+    const tailStr = tail.length ? ' ' + tail.join(' ') : '';
+    return { dataType: wordStr + parenStr + tailStr };
   }
 
-character_string_type
-  = t:(KW_CHAR / KW_VARCHAR) __ LPAREN __ l:[0-9]+ __ RPAREN {
-    return { dataType: t, length: parseInt(l.join(''), 10), parentheses: true };
+data_type_word
+  = t:ident_without_kw_type !{ return reservedMap[t.value && t.value.toUpperCase()] === true; } {
+    return t.value;
   }
-  / t:KW_CHAR { return { dataType: t }; }
-  / t:KW_VARCHAR { return { dataType: t }; }
-
-numeric_type_suffix
-  = un: KW_UNSIGNED? __ ze: KW_ZEROFILL? {
-    const result = []
-    if (un) result.push(un)
-    if (ze) result.push(ze)
-    return result
-  }
-numeric_type
-  = t:(KW_NUMERIC / KW_DECIMAL / KW_INT / KW_INTEGER / KW_SMALLINT / KW_TINYINT / KW_BIGINT / KW_FLOAT / KW_DOUBLE / KW_BIT / KW_REAL) __ LPAREN __ l:[0-9]+ __ r:(COMMA __ [0-9]+)? __ RPAREN __ s:numeric_type_suffix? { return { dataType: t, length: parseInt(l.join(''), 10), scale: r && parseInt(r[2].join(''), 10), parentheses: true, suffix: s }; }
-  / t:(KW_NUMERIC / KW_DECIMAL / KW_INT / KW_INTEGER / KW_SMALLINT / KW_TINYINT / KW_BIGINT / KW_FLOAT / KW_DOUBLE / KW_REAL)l:[0-9]+ __ s:numeric_type_suffix? { return { dataType: t, length: parseInt(l.join(''), 10), suffix: s }; }
-  / t:(KW_NUMERIC / KW_DECIMAL / KW_INT / KW_INTEGER / KW_SMALLINT / KW_TINYINT / KW_BIGINT / KW_FLOAT / KW_DOUBLE / KW_REAL) __ s:numeric_type_suffix? __{ return { dataType: t, suffix: s }; }
-
-
-datetime_type
-  = t:(KW_DATE / KW_DATETIME / KW_TIME / KW_TIMESTAMP) __ LPAREN __ l:[0-6] __ RPAREN __ s:numeric_type_suffix? { return { dataType: t, length: parseInt(l, 10), parentheses: true }; }
-  / t:(KW_DATE / KW_DATETIME / KW_TIME / KW_TIMESTAMP) { return { dataType: t }; }
-
-enum_type
-  = t:KW_ENUM __ e:value_item {
-    e.parentheses = true
-    return {
-      dataType: t,
-      expr: e
-    }
-  }
-
-json_type
-  = t:KW_JSON { return { dataType: t }; }
-
-text_type
-  = t:(KW_TINYTEXT / KW_TEXT / KW_MEDIUMTEXT / KW_LONGTEXT) { return { dataType: t }}
