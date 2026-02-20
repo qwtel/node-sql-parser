@@ -13,9 +13,6 @@ fs.readdirSync(parserFolder)
     const parser = peg.generate(source, {
       format: 'umd',
       output: 'source',
-      dependencies: {
-        "BigInt": "big-integer",
-      },
     })
     fs.writeFileSync(path.join(__dirname, `build/${name}.js`), parser)
   })
