@@ -7,4 +7,5 @@ lib/
 bower_components/
 umd/
 output/
+generated/
 .DS_Store

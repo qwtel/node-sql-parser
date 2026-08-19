@@ -142,7 +142,7 @@ function columnOption(definition) {
     columnOpt.push(constraintDefinitionToSQL(check))
     columnOpt.push(generatedExpressionToSQL(generated))
     if (generated) columnOpt.push(nullSQL)
-  columnOpt.push(autoIncrementToSQL(autoIncrement), toUpper(primaryKey), toUpper(uniqueKey), literalToSQL(generateByDefault), commentToSQL(comment))
+    columnOpt.push(autoIncrementToSQL(autoIncrement), toUpper(primaryKey), toUpper(uniqueKey), literalToSQL(generateByDefault), commentToSQL(comment))
     columnOpt.push(...commonTypeValue(characterSet))
     columnOpt.push(exprToSQL(collate))
     columnOpt.push(...commonTypeValue(columnFormat))

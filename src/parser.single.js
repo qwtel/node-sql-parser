@@ -1,5 +1,5 @@
-import { parse } from '../pegjs/mysql.pegjs'
+import { parse } from '../generated/sqlite-parser'
 
 export default {
-  [PARSER_NAME] : parse,
+  sqlite : parse,
 }

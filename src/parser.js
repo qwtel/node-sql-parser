@@ -1,6 +1,6 @@
 import { columnToSQL, getDual } from './column'
 import { exprToSQL } from './expr'
-import parsers from './parser.all'
+import parsers from './parser.single'
 import astToSQL from './sql'
 import { DEFAULT_OPT, setParserOpt } from './util'
 
@@ -28,7 +28,7 @@ class Parser {
   }
 
   parse(sql, opt = DEFAULT_OPT) {
-    const { database = (PARSER_NAME || 'mysql') } = opt
+    const { database = 'sqlite' } = opt
     setParserOpt(opt)
     const typeCase = database.toLowerCase()
     if (parsers[typeCase]) return parsers[typeCase](opt.trimQuery === false ? sql : sql.trim(), opt.parseOptions || DEFAULT_OPT.parseOptions)
