@@ -18,6 +18,7 @@
     'CREATE': true,
     'CONTAINS': true,
     'COUNT': true,
+    'CROSS': true,
     'CURRENT_DATE': true,
     'CURRENT_TIME': true,
     'CURRENT_TIMESTAMP': true,
@@ -1428,7 +1429,7 @@ with_clause
     }
 
 cte_definition
-  = name:(literal_string / ident_name / table_name) __ columns:cte_column_definition? __ KW_AS __ LPAREN __ stmt:union_stmt __ RPAREN {
+  = name:(literal_string / ident_name / table_name) __ columns:cte_column_definition? __ KW_AS __ LPAREN __ stmt:(value_clause / union_stmt) __ RPAREN {
     if (typeof name === 'string') name = { type: 'default', value: name }
     if (name.table) name = { type: 'default', value: name.table }
     return { name, stmt, columns };
@@ -1661,6 +1662,7 @@ table_base
 
 join_op
   = KW_LEFT __ KW_OUTER? __ KW_JOIN { return 'LEFT JOIN'; }
+  / KW_CROSS __ KW_JOIN { return 'CROSS JOIN'; }
   / (KW_INNER __)? KW_JOIN { return 'INNER JOIN'; }
 
 table_name
@@ -2792,6 +2794,7 @@ KW_COLLATE  = "COLLATE"i    !ident_start { return 'COLLATE'; }
 KW_ON       = "ON"i       !ident_start
 KW_LEFT     = "LEFT"i     !ident_start
 KW_INNER    = "INNER"i    !ident_start
+KW_CROSS    = "CROSS"i    !ident_start
 KW_JOIN     = "JOIN"i     !ident_start
 KW_OUTER    = "OUTER"i    !ident_start
 KW_OVER     = "OVER"i     !ident_start
